@@ -1,0 +1,149 @@
+*run.txt* run.vim
+
+run.vim - compiling and testing automation
+
+Author: Gabriel G. de Brito gabrielgbrito@icloud.com
+Version: 1.0
+Homepage: github.com/gboncoffee/run.vim
+License: MIT
+
+==============================================================================
+INTRODUCTION                                                          *run.vim*
+
+Run.vim is a simple plugin for automation on compiling and testing inside Vim
+or Neovim. It's implemented entirely in Vim Script.
+
+==============================================================================
+USAGE                                                           *run.vim-usage*
+
+Run.vim can be used in the global namespace (with global variables) or in the
+buffer-only namespace (with buffer-variables):
+
+*Run*
+|Run| will start a process on the |terminal| or an external command if
+specified. By default, starts on |terminal| and automatically enter terminal
+mode and close the window when the process ends. You may use args to define a
+process (for example, `Run python` will start a Python repl), and, if called
+without args, it will default to the |shell| Vim variable.
+
+*Compile* *CompileBuffer*
+|Compile| will start a process like |Run|, but will leave the terminal buffer
+(if one) opened when finished.
+
+The main difference it's that when calling |Compile| with args, it'll set the
+variable |g:Run_compiler_cmd| to them, and if calling it without args, it'll run
+whatever is in that variable.
+
+This way, you can set the compiling command only once within a session. After
+that, you can simply use |Compile| to run the same command again.
+
+If the command is runned and |g:Run_compiler_cmd| is empty or don't exist, the
+user will be prompted with a command to set |g:Run_compiler_cmd| to.
+
+The buffer-local version of the command will set the buffer-local variable
+`b:Run_compiler_cmd` and operate on that. Note that if the buffer has a local
+variable, it'll be used instead of the global one even with the default
+|Compile| command. To make a buffer use the global variable again, you can run
+|CompileBufferReset| and leave the command empty.
+
+*Execute*
+|Execute| offers the same workflow from the |Compile| command, but for
+executing Vim Script commands (normal |Ex| commands). It uses the variable
+|g:Run_execute_cmd| instead, too.
+
+*CompileReset* *CompileBufferReset*
+|CompileReset| sets the variable |g:Run_compiler_cmd| (or the buffer-local
+one) to an empty string and them runs |Compile|, resulting in the |Compile|
+command prompting the user for a new command. Works only for forcing the reset
+of the command and prompting for a new one.
+
+*CompileAuto* *CompileAutoBuffer*
+Like |CompileReset| but runs the auto-setting function before asking a command
+again. See |run.vim-default-command|.
+
+*Async*
+|Async| run a command without any terminal, like using :!, but without
+freezing the editor.
+
+*AsyncList*
+|AsyncList| lists the processes openend by |Async|.
+
+*AsyncKill* 
+|AsyncKill| kills a process opened by |Async|.
+
+==============================================================================
+SETTINGS                                                     *run.vim-settings*
+
+To specify a default compiling command, simply set |g:Run_compiler_cmd| to
+whatever you want on your Vim or Neovim config file.
+
+On Neovim, you can also use |g:Run_runwin_cmd| and |g:Run_compilewin_cmd| to
+specify the Vim command to open the terminal window for each command of
+run.vim: either |split| (the default for both), |vsplit| or |tabnew|.
+
+On Vim, you can use |g:Run_runwin_vsp|, |g:Run_runwin_cur|,
+|g:Run_compilewin_vsp| and |g:Run_compilewin_cur| to specify if the terminal
+should be opened vertically or in the same window.
+
+==============================================================================
+DEFAULT COMMAND                                       *run.vim-default-command*
+
+The variable |g:Run_filetype_defaults| is a dictionary with default
+compilation commands for different filetypes. This dictionary have a default
+value returned by the function `RunGetDefaultCompilers`. The variable
+|g:Run_auto_set_cmd| controls how the dictionary keys will be used to
+automatically set |g:Run_compiler_cmd| on |FileType| events.
+
+This dictionary have keys as |filetype| entries and values as their respective
+compilation commands. The placeholder `$#` is used to represent the file
+matched by the |FileType| event.
+
+As a configuration example, one could use the default dictionary but overwrite
+only the `javascript` filetype (defaults to `node $#`) this way in one's |vimrc| or |init.vim|:
+
+`let g:Run_filetype_defaults=RunGetDefaultCompilers()`
+`let g:Run_filetype_defaults['javascript']='deno $#'`
+
+==============================================================================
+VARIABLES                                                   *run.vim-variables*
+
+*g:Run_compiler_cmd*    the shell command to run on compilation, changed by
+*b:Run_compiler_cmd*    the |Compile| command.
+
+*g:Run_execute_cmd*     the execute command to run changed by the |Execute|
+                      command.
+
+*g:Run_runwin_cmd*      (Neovim) the command to open the |terminal| window for
+                      |Run|.
+
+*g:Run_compilewin_cmd*  (Neovim) the command to open the |terminal| window for
+                      |Compile|.
+
+*g:Run_runwin_vsp*      (vim) if term should open vertically for |Run|.
+
+*g:Run_runwin_cur*      (vim) if term should open in the same window for |Run|.
+
+*g:Run_compilewin_vsp*  (vim) if term should open vertically for |Compile|.
+
+*g:Run_compilewin_cur*  (vim) if term should open in the same window for
+                      |Compile|.
+
+*g:Run_auto_set_cmd*    if 0, don't set any command automatically on
+                      |FileType| events. If 1, sets only if the variable
+                      |g:Run_compiler_cmd| is empty or don't exists, and if
+                      any other value sets the command automatically every
+                      |FileType| event, replacing the old |g:Run_compiler_cmd| 
+                      value.
+
+*g:Run_auto_set_cmd_bufonly*
+                      works only with |g:Run_auto_set_cmd| set to 1. If 1
+                      (default), the autocmd will set the buffer-local
+                      |b:Run_compiler_cmd|. If 0, the autocmd will set the
+                      global |b:Run_compiler_cmd|.
+
+*g:Run_filetype_defaults* 
+                      dictionary of keys as |filetype| and their matching
+                      default compiler commands.
+
+------------------------------------------------------------------------------
+vim:tw=78:ts=4:ft=help:norl: 
