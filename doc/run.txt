@@ -128,6 +128,11 @@ VARIABLES                                                   *run.vim-variables*
 *g:Run_compilewin_cur*  (vim) if term should open in the same window for
                       |Compile|.
 
+*g:Run_run_before*      Vim command to run before openning the term for |Run|.
+
+*g:Run_compile_before*  Vim command to run before openning the term for 
+                      |Compile|.
+
 *g:Run_auto_set_cmd*    if 0, don't set any command automatically on
                       |FileType| events. If 1, sets only if the variable
                       |g:Run_compiler_cmd| is empty or don't exists, and if

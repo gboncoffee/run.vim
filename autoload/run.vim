@@ -192,6 +192,10 @@ function! run#Run(args = '') " {{{
         let command=a:args
     endif
 
+    if exists('g:Run_run_before')
+        execute g:Run_run_before
+    endif
+
     if has('nvim')
         execute g:Run_runwin_cmd 'term://'command
         autocmd TermClose <buffer> bd
@@ -252,6 +256,10 @@ function! run#Compile(args = '') " Compile {{{
             execute 'bdelete' l:bufr.bufnr
         endif
     endfor
+
+    if exists('g:Run_compile_before')
+        execute g:Run_compile_before
+    endif
 
     if has('nvim')
         execute g:Run_compilewin_cmd 'term://'l:cmd
