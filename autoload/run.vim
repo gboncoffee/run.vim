@@ -266,7 +266,7 @@ function! run#Compile(args = '') " Compile {{{
         autocmd TermClose <buffer> call feedkeys("\<C-\>\<C-n>")
         normal a
     else
-        call term_start([&shell, '-c', l:cmd..' ; echo "\n[Process exited $?]"'], {'exit_cb': function('run#ExitJobHandler'), 'term_finish': 'open', 'curwin': g:Run_compilewin_cur, 'vertical': g:Run_compilewin_vsp})
+        call term_start([&shell, '-c', l:cmd..' ; echo -e "\n[Process exited $?]"'], {'exit_cb': function('run#ExitJobHandler'), 'term_finish': 'open', 'curwin': g:Run_compilewin_cur, 'vertical': g:Run_compilewin_vsp})
     endif
     set filetype=run-compiler
 
