@@ -2,17 +2,9 @@
 
 " Section:      functions 
 
-function! s:PromptCommand(global = 0) " {{{
+function! run#PromptCommand(current = "") " {{{
 
-    if a:global
-        call inputsave()
-        let g:Run_compiler_cmd = input("Compiler command: ", "", "file")
-        call inputrestore()
-    else
-        call inputsave()
-        let b:Run_compiler_cmd = input("Compiler command: ", "", "file")
-        call inputrestore()
-    endif
+    return input("Compiler command: ", a:current, "file")
 
 endfunction " }}}
 
@@ -230,7 +222,7 @@ function! run#Compile(args = '') " Compile {{{
     "
     " buffer-local: if have a valid buffer-local value and no arguments
     " global:       if don't, and then checks to see if have a valid global one,
-    " and if not, sets it with the s:PromptCommand
+    " and if not, sets it with the run#PromptCommand
     if !empty(a:args)
         let g:Run_compiler_cmd = a:args
         let l:cmd = g:Run_compiler_cmd
@@ -239,7 +231,7 @@ function! run#Compile(args = '') " Compile {{{
                 let l:cmd = b:Run_compiler_cmd
         else
             if !exists('g:Run_compiler_cmd') || empty(g:Run_compiler_cmd)
-                call s:PromptCommand(1)
+                let g:Run_compiler_cmd = run#PromptCommand("")
             endif
 
             if empty(g:Run_compiler_cmd)
@@ -274,20 +266,27 @@ endfunction " }}}
 
 function! run#CompileBuffer(cmd = '') "{{{
     if !exists('b:Run_compiler_cmd') || empty(b:Run_compiler_cmd)
-        call s:PromptCommand(0)
+        let b:Run_compiler_cmd = run#PromptCommand("")
     endif
     Compile
 endfunction " }}}
 
 function! run#CompileReset(buffer = 0) " {{{
-    if a:buffer
-        let b:Run_compiler_cmd = ''
+
+    if !a:buffer
+        if !exists('g:Run_compiler_cmd')
+            let g:Run_compiler_cmd = ""
+        endif
+        let g:Run_compiler_cmd = run#PromptCommand(g:Run_compiler_cmd)
+        Compile
+    else
+        if !exists('b:Run_compiler_cmd')
+            let b:Run_compiler_cmd = ""
+        endif
+        let b:Run_compiler_cmd = run#PromptCommand(b:Run_compiler_cmd)
         CompileBuffer
-        return
     endif
 
-    let g:Run_compiler_cmd = ''
-    Compile
 endfunction " }}}
 
 function! run#CompileAuto(buffer) " {{{
